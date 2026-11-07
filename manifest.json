@@ -1,0 +1,26 @@
+{
+  "name": "Aula Virtual - Salta",
+  "short_name": "Aula Virtual",
+  "description": "Plataforma de gestión educativa, entrega de tareas y muro de cursos.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f8f9fa",
+  "theme_color": "#D6457C",
+  "lang": "es-AR",
+  "icons": [
+    {
+      "src": "icono-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icono-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

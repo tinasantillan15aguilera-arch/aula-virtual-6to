@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aula 6.o</title>
+  <link rel="stylesheet" href="styles.css">
+  
+  <!-- Enlaces del Paso 3 (Manifest y PWA) -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#D6457C">
+  <link rel="apple-touch-icon" href="icono-192.png">
+</head>
+<body>
+
+  <!-- Encabezado principal -->
+  <header>
+    <h1>Aula 6.o</h1>
+    
+    <div class="panel-encabezado">
+      <label for="selector-rol">Ver como:</label>
+      <select id="selector-rol">
+        <option value="docente">Docente</option>
+        <option value="alumno">Alumno</option>
+      </select>
+
+      <div class="acciones-datos">
+        <button type="button" id="boton-exportar">Exportar Datos</button>
+        <button type="button" id="boton-importar">Importar Datos</button>
+        <input type="file" id="input-archivo-importar" accept=".json" style="display: none;">
+      </div>
+    </div>
+  </header>
+
+  <!-- Contenido principal -->
+  <main>
+
+    <!-- Vista 1: Mis cursos -->
+    <section id="vista-mis-cursos" class="vista">
+      <h2>Mis Cursos</h2>
+      
+      <!-- Formulario para crear o editar un curso (solo docente) -->
+      <form id="formulario-crear-curso" class="solo-docente">
+        <h3 id="titulo-formulario-curso">Crear nuevo curso</h3>
+        <input type="hidden" id="id-curso-editando" value="">
+        
+        <div>
+          <label for="codigo-curso">Código único (3 a 8 caracteres, ej: PROG6):</label>
+          <input type="text" id="codigo-curso" required placeholder="Ej: PROG6" maxlength="8">
+        </div>
+        <div>
+          <label for="nombre-curso">Nombre del curso:</label>
+          <input type="text" id="nombre-curso" required placeholder="Ej: Programación Web">
+        </div>
+        <div>
+          <label for="docente-curso">Docente a cargo:</label>
+          <input type="text" id="docente-curso" required placeholder="Ej: Prof. Gómez">
+        </div>
+        <div>
+          <label for="color-curso">Color identificatorio:</label>
+          <input type="color" id="color-curso" value="#D6457C" style="width: 100%; height: 40px; padding: 2px; cursor: pointer;">
+        </div>
+        
+        <div style="display: flex; gap: 0.5rem;">
+          <button type="submit" id="boton-guardar-curso">Crear Curso</button>
+          <button type="button" id="boton-cancelar-edicion" style="display: none; background-color: #718096;">Cancelar</button>
+        </div>
+      </form>
+
+      <div id="grilla-cursos" class="grilla-cursos">
+        <!-- Los cursos se cargan dinámicamente -->
+      </div>
+
+      <!-- DESAFÍO EXTRA 2: Calendario de próximos vencimientos -->
+      <div class="tarjeta-calendario" style="margin-top: 2rem; background: var(--color-superficie); padding: 1.5rem; border-radius: var(--borde-radio); border: 1px solid var(--color-borde); box-shadow: var(--sombra-suave);">
+        <h3 style="color: var(--color-primario); margin-bottom: 0.8rem;">📅 Calendario de Próximos Vencimientos</h3>
+        <ul id="lista-calendario-vencimientos" style="list-style: none; display: flex; flex-direction: column; gap: 0.6rem;">
+          <!-- Se cargan dinámicamente -->
+        </ul>
+      </div>
+    </section>
+
+    <!-- Vista 2: Detalle del Curso (Muro) -->
+    <section id="vista-curso" class="vista" style="display: none;">
+      <button type="button" id="boton-volver-cursos">&larr; Volver a Mis Cursos</button>
+      
+      <h2 id="titulo-curso-actual">Nombre del Curso</h2>
+
+      <!-- Formulario para publicar en el muro (solo docente) -->
+      <form id="formulario-publicar" class="solo-docente">
+        <h3 id="titulo-formulario-publicacion">Publicar en el muro</h3>
+        <input type="hidden" id="id-publicacion-editando" value="">
+        
+        <div>
+          <label for="tipo-publicacion">Tipo de publicación:</label>
+          <select id="tipo-publicacion">
+            <option value="texto">📝 Texto (Apunte o mensaje)</option>
+            <option value="enlace">🔗 Enlace web (URL)</option>
+            <option value="archivo">📁 Archivo (PDF, Word, Imagen, etc.)</option>
+            <option value="tarea">📋 Tarea / Consigna</option>
+          </select>
+        </div>
+        <div>
+          <label for="titulo-publicacion">Título:</label>
+          <input type="text" id="titulo-publicacion" required placeholder="Ej: Trabajo Práctico N° 1">
+        </div>
+        
+        <div id="contenedor-campo-contenido"></div>
+
+        <div style="display: flex; gap: 0.5rem;">
+          <button type="submit" id="boton-guardar-publicacion">Publicar</button>
+          <button type="button" id="boton-cancelar-edicion-publicacion" style="display: none; background-color: #718096;">Cancelar</button>
+        </div>
+      </form>
+
+      <div id="muro-publicaciones">
+        <!-- Las publicaciones con sus comentarios se cargan dinámicamente -->
+      </div>
+    </section>
+
+    <!-- Vista 3: Detalle de Tarea -->
+    <section id="vista-tarea" class="vista" style="display: none;">
+      <button type="button" id="boton-volver-curso">&larr; Volver al Curso</button>
+
+      <div class="tarjeta-consigna-tarea">
+        <h2 id="titulo-tarea-actual">Título de la Tarea</h2>
+        <div class="detalles-tarea-meta">
+          <span id="meta-fecha-limite">📅 Vencimiento: --/--/---- --:--</span>
+          <span id="meta-puntaje">🏆 Puntaje Máx: -- pts</span>
+          <span id="meta-pendientes" class="solo-docente" style="color: #dd6b20;">⏳ Faltan corregir: 0</span>
+        </div>
+        <p id="consigna-tarea-actual">Consigna de la tarea...</p>
+      </div>
+
+      <!-- Selector de identidad Alumno -->
+      <div class="tarjeta-identidad-alumno solo-alumno" style="background: var(--color-superficie); padding: 1rem; border-radius: var(--borde-radio); border: 1px solid var(--color-borde); display: flex; gap: 1rem; align-items: center;">
+        <label for="input-alumno-actual" style="font-weight: bold; white-space: nowrap;">👤 Tu Nombre (Alumno):</label>
+        <input type="text" id="input-alumno-actual" placeholder="Ingresá tu nombre..." style="flex: 1;">
+        <button type="button" id="boton-fijar-alumno" style="padding: 0.5rem 1rem;">Establecer</button>
+      </div>
+
+      <!-- Formulario de entrega -->
+      <form id="formulario-entrega" class="solo-alumno" style="display: none;">
+        <h3 id="titulo-formulario-entrega">Realizar entrega</h3>
+        <input type="hidden" id="id-entrega-editando" value="">
+        
+        <div>
+          <label for="respuesta-entrega">Comentario / Enlace opcional:</label>
+          <textarea id="respuesta-entrega" rows="2" placeholder="Escribí una aclaración..."></textarea>
+        </div>
+
+        <div>
+          <label for="archivo-entrega">Adjuntar archivo o foto:</label>
+          <!-- Adaptación App 5: accept="image/*" y capture="environment" para la cámara -->
+          <input type="file" id="archivo-entrega" accept="image/*" capture="environment">
+          <small id="info-archivo-actual" style="color: var(--color-texto-secundario); font-size: 0.8rem;"></small>
+        </div>
+        
+        <div style="display: flex; gap: 0.5rem;">
+          <button type="submit" id="boton-enviar-entrega">Entregar Tarea</button>
+          <button type="button" id="boton-cancelar-entrega" style="display: none; background-color: #718096;">Cancelar</button>
+        </div>
+      </form>
+
+      <div class="seccion-entregas">
+        <h3 id="titulo-seccion-entregas">Entregas de la Tarea</h3>
+        <ul id="lista-entregas"></ul>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

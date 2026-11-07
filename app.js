@@ -908,6 +908,113 @@ function renderizarEntregas() {
 }
 
 /* ==========================================
+   GESTIÓN DE DATOS JSON (Exportar / Importar con Share API)
+   ========================================== */
+
+function inicializarExportarImportar() {
+  const btnExportar = document.getElementById("boton-exportar");
+  const btnImportar = document.getElementById("boton-importar");
+  const inputImportar = document.getElementById("input-archivo-importar");
+
+  if (btnExportar) {
+    btnExportar.addEventListener("click", async () => {
+      const jsonStr = JSON.stringify(baseDatos, null, 2);
+      const blob = new Blob([jsonStr], { type: "application/json" });
+      const archivo = new File([blob], "aula-datos.json", { type: "application/json" });
+
+      // Verificamos si el celular permite compartir archivos con navigator.share (Paso 7)
+      if (navigator.canShare && navigator.canShare({ files: [archivo] })) {
+        try {
+          await navigator.share({
+            title: "Datos del Aula Virtual",
+            text: "Copia de seguridad en formato JSON de mi app",
+            files: [archivo]
+          });
+          return;
+        } catch (error) {
+          if (error.name !== "AbortError") {
+            console.log("Error al compartir, usando descarga normal:", error);
+          } else {
+            return; // Si el usuario canceló el menú de compartir, no hacemos nada más
+          }
+        }
+      }
+
+      // Si no soporta share o falló, descargamos como siempre
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "aula-datos.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+  }
+
+  if (btnImportar && inputImportar) {
+    btnImportar.addEventListener("click", () => {
+      inputImportar.click();
+    });
+
+    inputImportar.addEventListener("change", (e) => {
+      const archivo = e.target.files[0];
+      if (!archivo) return;
+
+      const lector = new FileReader();
+      lector.onload = function(evento) {
+        try {
+          baseDatos = JSON.parse(evento.target.result);
+          guardarDatos();
+          actualizarInterfazRol();
+          alert("¡Datos importados con éxito!");
+        } catch (err) {
+          alert("❌ El archivo JSON no es válido.");
+        }
+      };
+      lector.readAsText(archivo);
+    });
+  }
+}
+
+/* ==========================================
+   AVISO DISCRETO DE CONEXIÓN (Paso 7)
+   ========================================== */
+
+function inicializarAvisoConexion() {
+  // Creamos el elemento visual del aviso arriba del todo
+  const aviso = document.createElement("div");
+  aviso.id = "aviso-conexion";
+  aviso.style.cssText = `
+    background-color: #feebc8;
+    color: #7b341e;
+    text-align: center;
+    padding: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: none;
+    border-bottom: 1px solid #fbd38d;
+    position: sticky;
+    top: 0;
+    z-index: 9999;
+  `;
+  aviso.textContent = "Sin conexión: tus datos se siguen guardando en este celular";
+  document.body.prepend(aviso);
+
+  function actualizarEstadoConexion() {
+    if (!navigator.onLine) {
+      aviso.style.display = "block";
+    } else {
+      aviso.style.display = "none";
+    }
+  }
+
+  window.addEventListener("online", actualizarEstadoConexion);
+  window.addEventListener("offline", actualizarEstadoConexion);
+  
+  // Verificamos al iniciar
+  actualizarEstadoConexion();
+}
+
+/* ==========================================
    INICIALIZACIÓN GENERAL
    ========================================== */
 
@@ -932,6 +1039,8 @@ document.addEventListener("DOMContentLoaded", () => {
   inicializarFormularioCurso();
   inicializarFormularioPublicar();
   inicializarFormularioEntrega();
+  inicializarExportarImportar();
+  inicializarAvisoConexion(); // Activamos el aviso offline
   actualizarInterfazRol();
   mostrarVista("mis-cursos");
 });

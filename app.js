@@ -908,7 +908,7 @@ function renderizarEntregas() {
 }
 
 /* ==========================================
-   GESTIÓN DE DATOS JSON (Exportar / Importar con Share API)
+   GESTIÓN DE DATOS JSON (Exportar con navigator.share)
    ========================================== */
 
 function inicializarExportarImportar() {
@@ -922,25 +922,24 @@ function inicializarExportarImportar() {
       const blob = new Blob([jsonStr], { type: "application/json" });
       const archivo = new File([blob], "aula-datos.json", { type: "application/json" });
 
-      // Verificamos si el celular permite compartir archivos con navigator.share (Paso 7)
       if (navigator.canShare && navigator.canShare({ files: [archivo] })) {
         try {
           await navigator.share({
             title: "Datos del Aula Virtual",
-            text: "Copia de seguridad en formato JSON de mi app",
+            text: "Copia de seguridad en formato JSON",
             files: [archivo]
           });
           return;
         } catch (error) {
           if (error.name !== "AbortError") {
-            console.log("Error al compartir, usando descarga normal:", error);
+            console.log("Error al compartir:", error);
           } else {
-            return; // Si el usuario canceló el menú de compartir, no hacemos nada más
+            return;
           }
         }
       }
 
-      // Si no soporta share o falló, descargamos como siempre
+      // Descarga habitual si no hay soporte o API Share
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -980,7 +979,8 @@ function inicializarExportarImportar() {
    ========================================== */
 
 function inicializarAvisoConexion() {
-  // Creamos el elemento visual del aviso arriba del todo
+  if (document.getElementById("aviso-conexion")) return;
+
   const aviso = document.createElement("div");
   aviso.id = "aviso-conexion";
   aviso.style.cssText = `
@@ -1010,7 +1010,6 @@ function inicializarAvisoConexion() {
   window.addEventListener("online", actualizarEstadoConexion);
   window.addEventListener("offline", actualizarEstadoConexion);
   
-  // Verificamos al iniciar
   actualizarEstadoConexion();
 }
 
@@ -1040,7 +1039,7 @@ document.addEventListener("DOMContentLoaded", () => {
   inicializarFormularioPublicar();
   inicializarFormularioEntrega();
   inicializarExportarImportar();
-  inicializarAvisoConexion(); // Activamos el aviso offline
+  inicializarAvisoConexion();
   actualizarInterfazRol();
   mostrarVista("mis-cursos");
 });

@@ -2,7 +2,7 @@
    SERVICE WORKER (sw.js) - Versión Actualizada
    ========================================== */
 
-const VERSION = "v2"; // Cambiamos de "v1" a "v2" para la actualización
+const VERSION = "v2"; // Asegúrate de que esté en v2 para probar la actualización
 const ARCHIVOS = [
   "./",
   "./index.html",
@@ -20,10 +20,9 @@ self.addEventListener("install", (e) => {
       return cache.addAll(ARCHIVOS);
     })
   );
-  self.skipWaiting();
 });
 
-// Evento Activate: borra las cachés de versiones anteriores (como la "v1")
+// Evento Activate: borra las cachés de versiones anteriores
 self.addEventListener("activate", (e) => {
   e.waitUntil(
     caches.keys().then((keys) => {

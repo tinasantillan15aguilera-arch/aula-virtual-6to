@@ -1044,28 +1044,32 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* ==========================================
-   REGISTRO Y DETECCIÓN DE ACTUALIZACIÓN (Paso 4 y Paso 8)
+   REGISTRO Y DETECCIÓN DE ACTUALIZACIÓN (Paso 8)
    ========================================== */
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js")
-      .then((reg) => {
-        console.log("Service Worker registrado con éxito:", reg.scope);
+    navigator.serviceWorker.register("./sw.js").then((reg) => {
+      console.log("Service Worker registrado con éxito:", reg.scope);
 
-        // Detectar si hay una nueva versión lista para instalar (Paso 8)
-        reg.addEventListener("updatefound", () => {
-          const nuevoWorker = reg.installing;
-          if (nuevoWorker) {
-            nuevoWorker.addEventListener("statechange", () => {
-              if (nuevoWorker.state === "installed" && navigator.serviceWorker.controller) {
-                alert("Hay una versión nueva: cerrá y volvé a abrir la app");
-              }
-            });
-          }
-        });
-      })
-      .catch((err) => {
-        console.log("Error al registrar el Service Worker:", err);
+      // Si ya hay una versión esperando al cargar
+      if (reg.waiting) {
+        alert("Hay una versión nueva: cerrá y volvé a abrir la app");
+        return;
+      }
+
+      // Detectar si se encuentra una nueva versión instalándose
+      reg.addEventListener("updatefound", () => {
+        const nuevoWorker = reg.installing;
+        if (nuevoWorker) {
+          nuevoWorker.addEventListener("statechange", () => {
+            if (nuevoWorker.state === "installed" && navigator.serviceWorker.controller) {
+              alert("Hay una versión nueva: cerrá y volvé a abrir la app");
+            }
+          });
+        }
       });
+    }).catch((err) => {
+      console.log("Error al registrar el Service Worker:", err);
+    });
   });
 }

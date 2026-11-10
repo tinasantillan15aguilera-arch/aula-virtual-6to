@@ -1,8 +1,8 @@
 /* ==========================================
-   SERVICE WORKER (sw.js) - PWA OFFLINE
+   SERVICE WORKER (sw.js) - Versión Actualizada
    ========================================== */
 
-const VERSION = "v1";
+const VERSION = "v2"; // Cambiamos de "v1" a "v2" para la actualización
 const ARCHIVOS = [
   "./",
   "./index.html",
@@ -13,7 +13,7 @@ const ARCHIVOS = [
   "./icono-512.png"
 ];
 
-// Evento Install: guarda todos los archivos en la caché la primera vez
+// Evento Install: guarda los archivos en la nueva caché
 self.addEventListener("install", (e) => {
   e.waitUntil(
     caches.open(VERSION).then((cache) => {
@@ -23,7 +23,7 @@ self.addEventListener("install", (e) => {
   self.skipWaiting();
 });
 
-// Evento Activate: limpia las cachés de versiones anteriores
+// Evento Activate: borra las cachés de versiones anteriores (como la "v1")
 self.addEventListener("activate", (e) => {
   e.waitUntil(
     caches.keys().then((keys) => {
@@ -39,7 +39,7 @@ self.addEventListener("activate", (e) => {
   self.clients.claim();
 });
 
-// Evento Fetch: responde primero con la caché y si no hay, busca en la red
+// Evento Fetch: responde primero con la caché
 self.addEventListener("fetch", (e) => {
   e.respondWith(
     caches.match(e.request).then((respuestaCachable) => {

@@ -1,8 +1,8 @@
 /* ==========================================
-   SERVICE WORKER (sw.js) - Versión Actualizada
+   SERVICE WORKER (sw.js) - Versión v2
    ========================================== */
 
-const VERSION = "v2"; // Asegúrate de que esté en v2 para probar la actualización
+const VERSION = "v2";
 const ARCHIVOS = [
   "./",
   "./index.html",
@@ -13,7 +13,6 @@ const ARCHIVOS = [
   "./icono-512.png"
 ];
 
-// Evento Install: guarda los archivos en la nueva caché
 self.addEventListener("install", (e) => {
   e.waitUntil(
     caches.open(VERSION).then((cache) => {
@@ -22,7 +21,6 @@ self.addEventListener("install", (e) => {
   );
 });
 
-// Evento Activate: borra las cachés de versiones anteriores
 self.addEventListener("activate", (e) => {
   e.waitUntil(
     caches.keys().then((keys) => {
@@ -38,7 +36,6 @@ self.addEventListener("activate", (e) => {
   self.clients.claim();
 });
 
-// Evento Fetch: responde primero con la caché
 self.addEventListener("fetch", (e) => {
   e.respondWith(
     caches.match(e.request).then((respuestaCachable) => {

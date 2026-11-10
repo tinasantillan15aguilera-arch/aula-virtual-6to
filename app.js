@@ -1049,20 +1049,21 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* ==========================================
-   REGISTRO Y DETECCIÓN DE ACTUALIZACIÓN (Paso 8)
+   REGISTRO Y DETECCIÓN DE ACTUALIZACIÓN (Paso 8 Forzado)
    ========================================== */
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("./sw.js").then((reg) => {
       console.log("Service Worker registrado con éxito:", reg.scope);
 
-      // Si ya hay una versión esperando al cargar
+      // Forzar la comprobación de actualización en cada inicio
+      reg.update();
+
       if (reg.waiting) {
         alert("Hay una versión nueva: cerrá y volvé a abrir la app");
         return;
       }
 
-      // Detectar si se encuentra una nueva versión instalándose
       reg.addEventListener("updatefound", () => {
         const nuevoWorker = reg.installing;
         if (nuevoWorker) {
